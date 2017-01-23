@@ -1,0 +1,522 @@
+(function($) {
+    'use strict';
+
+    $(function() {
+
+
+        $('.zazzle-product-image').unwrap();
+
+        //$('.za-collect-collection-holder-class').css({display:'none',opacity:0});
+        $('.za-collect-collection-holder-class').each(function(it) {
+            $(this).find('.zazzle-product-image').each(function(i, e) {
+                $(e).attr('data-collect-num', it);
+            });
+        });
+
+        $('div.za-collect[id^="za-collect-"]').each(function(itt, val) {
+
+            var collection = $(this).attr('zacollectionnum');
+            var collectionProducts = window['theProducts_' + collection];
+
+            var thisCollection = new CollectionMaker(collectionProducts, collection);
+
+            var prodLen = thisCollection.products.length;
+
+            for (var i = 0; i < prodLen; i++) {
+                thisCollection.products[i]['price'] = $('<textarea/>').html(getProductPrice(thisCollection.products[i])).text();
+                createProductGridProduct(thisCollection.products[i], thisCollection, i, itt);
+                createLightBoxProduct(thisCollection.products[i], thisCollection);
+            }
+
+            $('#za-collection-holder-' + collection).css('display', 'block')
+                .animate({
+                    'opacity': 1
+                }, 550);
+
+        });
+
+        /**
+         * Generates and appends DOM element for the product grid displayed on the blog
+         * page.
+         * @param {Object} prodObject
+         * @param {Number} i
+         *  @param {Number} itt
+         * @param {Object} productSet
+         * @return null
+         */
+        function createProductGridProduct(prodObject, productSet, i, itt) {
+
+            var thisProduct = $('.za-collection-' + productSet.collectionNum + '-product-' + i + '[data-collect-num=' + itt + ']');
+
+            productSet.gridProductArray.push(prodObject);
+
+            thisProduct.bind('vclick', function(e) {
+                e.preventDefault();
+                showMeLightBox(e.target, productSet, itt);
+            });
+
+        }
+
+        /**
+         * Generates and appends DOM element for the products featured in the lightbox.
+         * @param {Object} product
+
+         * @param {Object} thisProductSet
+         * @return null
+         */
+        function createLightBoxProduct(product, thisProductSet) {
+
+            var productHref = getProductHref(product, thisProductSet);
+            var authorHref = getAuthorHref(product, thisProductSet);
+            var newWindow = '_self';
+
+            if (zaCollectOptions.openNewWindow > 0) {
+                newWindow = '_blank';
+            }
+
+            //container
+
+            var lightboxContainer = $('<div/>').addClass('za-collect-current-product');
+
+            //title
+            var productLink = $('<a/>').attr({
+                    href: productHref,
+                    rel: 'nofollow',
+                    target: newWindow
+                })
+                .text($('<textarea/>').html(product.title).text());
+            var productTitle = $('<h3/>').addClass('zacollect-lightbox-product-title')
+                .append(productLink);
+
+            //author
+
+
+            var authorLink = $('<a/>').addClass('zacollect-lightbox-author-link')
+                .attr({
+                    href: authorHref,
+                    rel: 'nofollow',
+                    target: newWindow
+                })
+                .text($('<textarea/>').html(product.author).text());
+
+            var productAuthor = $('<p/>').addClass('zacollect-lightbox-product-author')
+                .text('Designed by: ')
+                .append(authorLink);
+
+            //price
+
+            var productPrice = $('<p/>').addClass('zacollect-lightbox-product-price')
+                .text(product.price);
+
+            //description
+
+            var descriptionText = $('<textarea/>').html(product.description).text();
+
+            var productDescription = $('<p/>').addClass('zacollect-lightbox-product-description')
+                .text(descriptionText);
+
+            //images
+
+            var productImage = $('<img/>').addClass('zacollect-lightbox-product-image')
+                .attr('src', product.image);
+
+            var productImageBlur = $('<img/>').addClass('zacollect-lightbox-product-image-blur')
+                .attr('src', product.image);
+
+            var blurOverlay = $('<div/>').addClass('zacollect-lightbox-product-image-blue-overlay')
+                .css({
+                    background: zaCollectOptions.accentColor
+
+                });
+
+            //buyButton
+
+
+            var btnText = $('<div/>').text($('<textarea/>').html(zaCollectOptions.buyNowText).text()).html();
+            if (!btnText || btnText === 'null') {
+                btnText = "Buy Now";
+            }
+
+
+            var buyBtn = $('<a/>').addClass('zacollect-lightbox-buy-btn')
+                .text(btnText)
+                .attr({
+                    href: productHref,
+                    rel: 'nofollow',
+                    target: newWindow
+                }).css({
+                    background: zaCollectOptions.accentColor,
+                    color: zaCollectOptions.accentTextColor
+                });
+
+
+            //STRUCTURE
+
+            var productImageDiv = $('<div/>').addClass('zacollect-product-image-holder')
+                .append(productImageBlur, blurOverlay, productImage);
+
+            var productTextDiv = $('<div/>').addClass('zacollect-product-text-holder')
+                .append(productTitle, productPrice, productAuthor, productDescription, buyBtn);
+
+            lightboxContainer.append(productImageDiv, productTextDiv);
+
+            thisProductSet.lightBoxProductArray.push(lightboxContainer);
+
+
+        }
+
+        function getProductHref(product, thisProductSet) {
+
+            var returnLink = product.link;
+            if (zaCollectOptions.refId) {
+                returnLink += '?rf=' + zaCollectOptions.refId;
+
+                if (thisProductSet.tracking) {
+                    returnLink += '&tc=' + thisProductSet.tracking;
+                }
+
+            }
+            return returnLink;
+        }
+
+        function getAuthorHref(product, thisProductSet) {
+
+            var authorLinkHref = 'http://www.zazzle.com/' + product.author;
+            if (zaCollectOptions.refId) {
+                authorLinkHref += '?rf=' + zaCollectOptions.refId;
+                if (thisProductSet.tracking) {
+                    authorLinkHref += '&tc=' + thisProductSet.tracking;
+                }
+            }
+            return authorLinkHref;
+        }
+
+        function getProductPrice(prod) {
+            return $($(prod.content).find('.ZazzleCollectionItemCellProduct-price')[0]).text();
+        }
+
+        function stripHTML(badString) {
+            var container = document.createElement('div');
+            var text = document.createTextNode(badString);
+            container.appendChild(text);
+
+            return container.innerHTML;
+        }
+
+        /**
+         * Generates lightbox and populates it with matching product info
+         * @param {Object} el
+         * @param {Object} thisProductSet
+         * @param {Number} itt
+         * @return null
+         */
+        function showMeLightBox(el, thisProductSet, itt) {
+
+            var className = el.className;
+
+            var arrayPos = parseInt(className.replace('zazzle-product-image za-collection-' + thisProductSet.collectionNum + '-product-', ''));
+            thisProductSet.curArrayPosition = arrayPos;
+
+            var product = thisProductSet.products[thisProductSet.curArrayPosition];
+
+            // var collectId = 
+            var lightbox = $('<div/>').attr('id', 'za-collect-lightbox')
+                .click(function(e) {
+
+                    if ($(e.target).parent()[0].nodeName === "BODY") {
+
+                        removeCurrentProductFromLightBox();
+                        removeLightBoxAndContents();
+                    }
+                });
+
+            var closeBtn = $('<div/>')
+                .attr({
+                    'id': 'za-collect-lightbox-close'
+                    //  'src' : zaCollectOptions.closeBtnImg,
+                })
+                .css({
+                    maxWidth: '50px'
+                })
+                .on("click", function() {
+                    //  $('html,body').scrollTop($('#za-collect-'+thisProductSet.collectionId).offset().top);
+                    removeCurrentProductFromLightBox();
+                    removeLightBoxAndContents();
+
+                });
+            var xIcon = $('<span/>').addClass('dashicons dashicons-dismiss za-collect-lightbox-close-btn')
+                .css({
+                    'font-size': '30px',
+                    color: zaCollectOptions.accentColor
+                });
+            closeBtn.append(xIcon);
+            //   lightbox.append(closeBtn);
+
+            var nextBtn = $('<div/>').append('<span style="font-size:50px" class="dashicons \n\
+                dashicons-arrow-right-alt2"></span>')
+                .attr('id', 'za-collect-lightbox-next')
+                .on("click", function(e) {
+
+                    moveLightBoxSlideShow(true, thisProductSet);
+                    removeCurrentProductFromLightBox();
+                    addProductInfoToLightBox(lightbox,
+                        thisProductSet.products[thisProductSet.curArrayPosition],
+                        thisProductSet);
+                });
+
+            var prevBtn = $('<div/>').append('<span style="font-size:50px" \n\
+            class="dashicons dashicons-arrow-left-alt2"></span>')
+                .attr('id', 'za-collect-lightbox-prev')
+                .on("click", function(e) {
+
+                    moveLightBoxSlideShow(false, thisProductSet);
+                    removeCurrentProductFromLightBox();
+                    addProductInfoToLightBox(lightbox,
+                        thisProductSet.products[thisProductSet.curArrayPosition],
+                        thisProductSet);
+                });
+
+            var container = $('<div/>')
+                .attr('id', 'za-collect-lightbox-container')
+                .append(closeBtn);
+
+            lightbox.append(container, nextBtn, prevBtn);
+
+            $('body').append(lightbox);
+
+            lightbox.animate({
+                opacity: 1
+            }, 350, function() {
+
+                $('body').addClass('za-collect-no-scroll').height($(window).height());
+                addProductInfoToLightBox(lightbox, product, thisProductSet);
+            });
+        }
+        /**
+         * Increases or decreases the curArrayPosition variable which is used to determine
+         * the product shown in the lightbox
+         * @param {Boolean} movingForward
+         * @param {Object} thisProductSet
+         *
+         * @return null
+         */
+        function moveLightBoxSlideShow(movingForward, thisProductSet) {
+
+            if (thisProductSet.curArrayPosition <= thisProductSet.products.length - 1 && thisProductSet.curArrayPosition >= 0) {
+                if (movingForward) {
+                    thisProductSet.curArrayPosition++;
+                    checkArrayPositionAndReset(movingForward, thisProductSet);
+                } else {
+                    thisProductSet.curArrayPosition--;
+                    checkArrayPositionAndReset(movingForward, thisProductSet);
+                }
+            }
+
+        }
+
+        /**
+         * Resets curArrayPosition variable if user hits beginning or end of array while
+         * cycling through products during lightbox mode
+         * 
+         * @param {Boolean} movingForward
+         * @param {Object} thisProductSet
+         *
+         * @return null
+         */
+        function checkArrayPositionAndReset(movingForward, thisProductSet) {
+            if (movingForward) {
+                if (thisProductSet.curArrayPosition >= thisProductSet.products.length) {
+                    thisProductSet.curArrayPosition = 0;
+                }
+            } else {
+                if (thisProductSet.curArrayPosition < 0) {
+                    thisProductSet.curArrayPosition = thisProductSet.products.length - 1;
+                }
+            }
+        }
+
+        //function displayImages() {
+        //    
+        //    $(window).on("load",displayImagesFunction);
+        //    
+        //}
+
+        /**
+         * Add the product element to the DOM in lightbox
+         * @param {Object} box
+         * @param {Object} product
+         * @param {Object} thisProductSet
+         *
+         * @return null
+         */
+        function addProductInfoToLightBox(box, product, thisProductSet) {
+
+            var container = $('#za-collect-lightbox-container');
+            var thisProduct = thisProductSet.lightBoxProductArray[thisProductSet.curArrayPosition];
+
+            container.append(thisProduct);
+            box.append(container);
+            var height = window.innerHeight,
+                width = window.innerWidth,
+                isPortrait = checkIfPortrait(height, width);
+            checkWinHeightResize(container, isPortrait, false);
+
+            thisProductSet.lightBoxProductArray[thisProductSet.curArrayPosition].animate({
+
+                opacity: 1
+            }, 350, function() {
+                $(this).addClass('lightbox-open');
+            });
+        }
+
+        /**
+         * Sets the layout of the product container in lightbox for viewing in portrait
+         * or landscape. 
+         * 
+         * @param {Object} container
+         * @param {Boolean} isPortrait
+         * @return null
+         */
+        function checkWinHeightResize(container, isPortrait, secondTime) {
+
+
+            var winHeight = $(window).height();
+            //   var contHeight = (container.height() + 30);
+
+
+            var containerNewHeight = container.height();
+            var prodImage = $(container).find('.zacollect-lightbox-product-image');
+            var prodImageHeight = prodImage.height();
+            if (containerNewHeight <= winHeight) {
+                var marHeight = Math.floor((winHeight - containerNewHeight) / 2);
+                container.css('margin-top', marHeight);
+
+                if (!isPortrait) {
+                    var imgContDiff = (containerNewHeight - (prodImageHeight + 52));
+
+                    if (imgContDiff > 0) {
+
+                        prodImage.css('maxWidth', prodImageHeight + imgContDiff + 'px');
+                    }
+                }
+
+            } else {
+                var diff = containerNewHeight - winHeight;
+
+                if (isPortrait) {
+
+                    prodImage.height(prodImageHeight - diff + 'px');
+                    var prodImageHolder = $(container).find('.zacollect-product-image-holder');
+                    var prodImageHolderHeight = prodImageHolder.height();
+                    prodImageHolder.height(prodImageHolderHeight - diff + 'px');
+
+                    if (!secondTime) {
+                        checkWinHeightResize(container, isPortrait, true);
+                    }
+                } else {
+
+                    $(container).find('.zacollect-lightbox-product-description').hide();
+
+                    if (!secondTime) {
+                        checkWinHeightResize(container, isPortrait, true);
+                    }
+                }
+            }
+
+
+
+        }
+
+        /**
+         * Removes product info from the lightbox container
+         *
+         * @return null
+         */
+        function removeCurrentProductFromLightBox() {
+
+            $('.za-collect-current-product').remove();
+        }
+
+        /**
+         * Removes lightbox from DOM
+         *
+         * @return null
+         */
+        function removeLightBoxAndContents() {
+            $('body').removeClass('za-collect-no-scroll').css('height', '100%');
+            $('#za-collect-lightbox').animate({
+                opacity: 0
+            }, 350, function() {
+                $(this).remove();
+            });
+
+        }
+        /**
+         * Hides and removes the loading cover for the product grid container.
+         *
+         * @return null
+         */
+        function displayImagesFunction() {
+            $('.za-collect-cover').animate({
+                opacity: 0
+            }, 1050, function() {
+                $(this).remove();
+            });
+            $('.za-collect-cover').parent().animate({
+                height: '100%',
+                overflow: 'visible'
+            }, 1050);
+
+            //  $(window).off("load",displayImagesFunction);
+        }
+
+        var resizeInt;
+        //    $(window).on("resize",function() {
+        //       
+        //    });
+
+        window.addEventListener("resize", function() {
+
+            clearTimeout(resizeInt);
+            resizeInt = setTimeout(function() {
+
+                var height = window.innerHeight,
+                    width = window.innerWidth,
+                    isPortrait = checkIfPortrait(height, width);
+
+                if (typeof $('#za-collect-lightbox-container') !== 'undefined') {
+                    var container = $('#za-collect-lightbox-container');
+                    container.find('.zacollect-lightbox-product-description').show();
+                    checkWinHeightResize(container, isPortrait, false);
+                }
+            }, 150);
+
+        });
+
+        function checkIfPortrait(h, w) {
+
+            if (h > w) {
+                return true;
+            } else {
+                return false;
+            }
+
+        }
+
+        function CollectionMaker(collectionObject, collection) {
+
+            this.collectionNum = collection;
+            this.title = collectionObject.products.collecctionTitle;
+            this.products = collectionObject.products.products;
+            this.lightBoxProductArray = [];
+            this.gridProductArray = [];
+            this.curArrayPosition = 0;
+            this.tracking = collectionObject.tracking;
+
+
+        }
+
+
+    });
+
+})(jQuery);

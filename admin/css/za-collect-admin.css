@@ -1,0 +1,19 @@
+label span{
+        width: 200px;
+    display: inline-block;
+}
+fieldset{
+    margin-bottom: 10px;
+}
+#za-collect-options-table{
+    font-size: 1.1em;
+}
+#za-collect-options-table th {
+    text-align: left;
+}
+#za-collect-options-table .option-heading{
+    font-weight: 700;
+}
+#za-collect-options-table .default{
+    text-align: right;
+}
