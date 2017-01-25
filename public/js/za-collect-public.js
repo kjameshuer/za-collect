@@ -3,38 +3,64 @@
 
     $(function() {
 
+        init();
+        
+        
+        /**
+         * Initializes zaCollect, prepares product info
+         * @return null
+         */
+        function init(){
+            
+            addCollectionDataToProductImages();
+            initializeCollections();
+            addEventHandlers();
 
-        $('.zazzle-product-image').unwrap();
+       
+        }
+         /**
+         * Finds product images, removes parent and adds the collection number to
+         * a data attribute.
+          * @return null
+         */
+        function  addCollectionDataToProductImages(){
+            $('.zazzle-product-image').unwrap();
 
-        //$('.za-collect-collection-holder-class').css({display:'none',opacity:0});
-        $('.za-collect-collection-holder-class').each(function(it) {
-            $(this).find('.zazzle-product-image').each(function(i, e) {
-                $(e).attr('data-collect-num', it);
+            $('.za-collect-collection-holder-class').each(function(it) {
+                $(this).find('.zazzle-product-image').each(function(i, e) {
+                    $(e).attr('data-collect-num', it);
+                });
             });
-        });
+        }
+        /**
+         * Prepares and populates collections with lightbox products
+         * 
+         * @return null
+         */
+        function initializeCollections(){
+                 $('div.za-collect[id^="za-collect-"]').each(function(itt, val) {
 
-        $('div.za-collect[id^="za-collect-"]').each(function(itt, val) {
+                var collection = $(this).attr('zacollectionnum');
+                var collectionProducts = window['theProducts_' + collection];
 
-            var collection = $(this).attr('zacollectionnum');
-            var collectionProducts = window['theProducts_' + collection];
+                var thisCollection = new CollectionMaker(collectionProducts, collection);
 
-            var thisCollection = new CollectionMaker(collectionProducts, collection);
+                var prodLen = thisCollection.products.length;
 
-            var prodLen = thisCollection.products.length;
+                for (var i = 0; i < prodLen; i++) {
+                    thisCollection.products[i]['price'] = $('<textarea/>').html(getProductPrice(thisCollection.products[i])).text();
+                    createProductGridProduct(thisCollection.products[i], thisCollection, i, itt);
+                    createLightBoxProduct(thisCollection.products[i], thisCollection);
+                }
 
-            for (var i = 0; i < prodLen; i++) {
-                thisCollection.products[i]['price'] = $('<textarea/>').html(getProductPrice(thisCollection.products[i])).text();
-                createProductGridProduct(thisCollection.products[i], thisCollection, i, itt);
-                createLightBoxProduct(thisCollection.products[i], thisCollection);
-            }
+                $('#za-collection-holder-' + collection).css('display', 'block')
+                    .animate({
+                        'opacity': 1
+                    }, 550);
 
-            $('#za-collection-holder-' + collection).css('display', 'block')
-                .animate({
-                    'opacity': 1
-                }, 550);
-
-        });
-
+            });
+        }
+        
         /**
          * Generates and appends DOM element for the product grid displayed on the blog
          * page.
@@ -164,7 +190,42 @@
 
 
         }
+          /**
+         * Adds event handlers for window resize.
+         * 
+         * @return null
+         */
+        function addEventHandlers(){
+            var resizeInt;
 
+
+            window.addEventListener("resize", function() {
+
+                clearTimeout(resizeInt);
+                resizeInt = setTimeout(function() {
+
+                    var height = window.innerHeight,
+                        width = window.innerWidth,
+                        isPortrait = checkIfPortrait(height, width);
+
+                    if (typeof $('#za-collect-lightbox-container') !== 'undefined') {
+                        var container = $('#za-collect-lightbox-container');
+                        container.find('.zacollect-lightbox-product-description').show();
+                        checkWinHeightResize(container, isPortrait, false);
+                    }
+                }, 150);
+
+            });
+        }
+        
+        /**
+         * Attaches the referral ID and tracking code to the product link
+         * if the options have been set.
+         * @param {Object} product
+
+         * @param {Object} thisProductSet
+         * @return {String}
+         */
         function getProductHref(product, thisProductSet) {
 
             var returnLink = product.link;
@@ -178,7 +239,14 @@
             }
             return returnLink;
         }
+         /**
+         * Attaches the referral ID and tracking code to the author link
+         * if the options have been set.
+         * @param {Object} product
 
+         * @param {Object} thisProductSet
+         * @return {String}
+         */
         function getAuthorHref(product, thisProductSet) {
 
             var authorLinkHref = 'http://www.zazzle.com/' + product.author;
@@ -190,7 +258,12 @@
             }
             return authorLinkHref;
         }
-
+        
+         /**
+         * Returns the price of the provided product
+         * @param {Object} prod
+         * @return {String}
+         */
         function getProductPrice(prod) {
             return $($(prod.content).find('.ZazzleCollectionItemCellProduct-price')[0]).text();
         }
@@ -219,7 +292,6 @@
 
             var product = thisProductSet.products[thisProductSet.curArrayPosition];
 
-            // var collectId = 
             var lightbox = $('<div/>').attr('id', 'za-collect-lightbox')
                 .click(function(e) {
 
@@ -233,13 +305,11 @@
             var closeBtn = $('<div/>')
                 .attr({
                     'id': 'za-collect-lightbox-close'
-                    //  'src' : zaCollectOptions.closeBtnImg,
                 })
                 .css({
                     maxWidth: '50px'
                 })
                 .on("click", function() {
-                    //  $('html,body').scrollTop($('#za-collect-'+thisProductSet.collectionId).offset().top);
                     removeCurrentProductFromLightBox();
                     removeLightBoxAndContents();
 
@@ -335,11 +405,7 @@
             }
         }
 
-        //function displayImages() {
-        //    
-        //    $(window).on("load",displayImagesFunction);
-        //    
-        //}
+
 
         /**
          * Add the product element to the DOM in lightbox
@@ -370,11 +436,12 @@
         }
 
         /**
-         * Sets the layout of the product container in lightbox for viewing in portrait
+         * Sets or adjusts the layout of the product container in lightbox for viewing in portrait
          * or landscape. 
          * 
          * @param {Object} container
          * @param {Boolean} isPortrait
+         * @param {Boolean} secondTime
          * @return null
          */
         function checkWinHeightResize(container, isPortrait, secondTime) {
@@ -451,48 +518,18 @@
             });
 
         }
-        /**
-         * Hides and removes the loading cover for the product grid container.
+ 
+
+         /**
+         * Checks if content is being viewed in Portrait or 
+         * Landscape
+         * 
+         * @param {Number} h
+         * @param {Number} w
          *
-         * @return null
+         * @return {Bool}
          */
-        function displayImagesFunction() {
-            $('.za-collect-cover').animate({
-                opacity: 0
-            }, 1050, function() {
-                $(this).remove();
-            });
-            $('.za-collect-cover').parent().animate({
-                height: '100%',
-                overflow: 'visible'
-            }, 1050);
-
-            //  $(window).off("load",displayImagesFunction);
-        }
-
-        var resizeInt;
-        //    $(window).on("resize",function() {
-        //       
-        //    });
-
-        window.addEventListener("resize", function() {
-
-            clearTimeout(resizeInt);
-            resizeInt = setTimeout(function() {
-
-                var height = window.innerHeight,
-                    width = window.innerWidth,
-                    isPortrait = checkIfPortrait(height, width);
-
-                if (typeof $('#za-collect-lightbox-container') !== 'undefined') {
-                    var container = $('#za-collect-lightbox-container');
-                    container.find('.zacollect-lightbox-product-description').show();
-                    checkWinHeightResize(container, isPortrait, false);
-                }
-            }, 150);
-
-        });
-
+        
         function checkIfPortrait(h, w) {
 
             if (h > w) {
