@@ -51,6 +51,15 @@ register_deactivation_hook( __FILE__, 'deactivate_za_collect' );
  */
 require plugin_dir_path( __FILE__ ) . 'includes/class-za-collect.php';
 
+if( ! class_exists( 'Smashing_Updater' ) ){
+	include_once( plugin_dir_path( __FILE__ ) . 'class-za-collect-updater.php' );
+}
+if (is_admin()){
+$updater = new Smashing_Updater( __FILE__ );
+$updater->set_username( 'kjameshuer' );
+$updater->set_repository( 'za-collect' );
+$updater->initialize();
+}
 /**
  * Begins execution of the plugin.
  *
