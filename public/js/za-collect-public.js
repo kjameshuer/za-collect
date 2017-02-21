@@ -494,8 +494,8 @@
 
           }
           /**
-           * Checks if content is being viewed in Portrait or 
-           * Landscape
+           * Checks if content is being viewed in portrait or 
+           * landscape
            * 
            * @param {Number} h
            * @param {Number} w

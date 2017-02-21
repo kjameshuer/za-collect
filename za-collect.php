@@ -12,7 +12,7 @@
  * Description:       Displays 'collections' from Zazzle.com on posts and pages by using shortcodes
  * Version:           1.0.2
  * Author:            Kevin J Huer
- * Author URI:        kjhuer.com
+ * Author URI:        http://kjhuer.com
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       za-collect
