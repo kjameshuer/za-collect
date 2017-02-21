@@ -113,9 +113,9 @@ class Za_Collect_Admin {
         public function validate( $input ){
            $valid = array();
            
-           $valid['referral_id'] = (isset($input['referral_id']) && !empty($input['referral_id'])) ? sanitize_text_field($input['referral_id']) : '';
+           $valid['referral_id'] = (isset($input['referral_id']) && !empty($input['referral_id']) && preg_match( '/^[0-9]{18}$/', $input['referral_id']  ) ) ? sanitize_text_field($input['referral_id']) : '';
            
-            if ( !empty($valid['referral_id']) && !preg_match( '/^[0-9]{18}$/', $valid['referral_id']  ) ) { 
+            if ( empty($valid['referral_id']) && !empty($input['referral_id']) ) { 
                     add_settings_error(
                             'referral_id',                     // Setting title
                             'referral_id_texterror',            // Error ID

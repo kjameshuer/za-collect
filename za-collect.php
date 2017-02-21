@@ -10,7 +10,7 @@
  * Plugin Name:       zaCollect
  * Plugin URI:        http://kjhuer.com/portfolio_post/zacollect/
  * Description:       Displays 'collections' from Zazzle.com on posts and pages by using shortcodes
- * Version:           1.0.2
+ * Version:           1.1.0
  * Author:            Kevin J Huer
  * Author URI:        http://kjhuer.com
  * License:           GPL-2.0+
