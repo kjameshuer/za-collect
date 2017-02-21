@@ -301,12 +301,12 @@
     }
     .zacollect-product-image-holder{
         width: 50%;
-        
+         margin: 25px auto;
         display: inline-block;
     }
     .zacollect-lightbox-product-image{
-        margin: 25px auto;
+       
             max-width: 250px;
-            height: auto;
+  
     }
 }

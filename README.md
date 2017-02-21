@@ -10,7 +10,7 @@ License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
 Displays Zazzle collections through user of shortcodes.
 
 ### Description
-zaCollect uses RSS feeds to display \'collections\' from Zazzle.com (no affiliation) on your posts and pages through the use of shortcodes.
+zaCollect uses RSS feeds to display 'collections' from Zazzle.com (no affiliation) on your posts and pages through the use of shortcodes.
 
 ### Installation
 1. Navigate to the Plugins section of the WordPress dashboard.
