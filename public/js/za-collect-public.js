@@ -129,14 +129,7 @@
               var productImage = $('<img/>').addClass('zacollect-lightbox-product-image')
                   .attr('src', product.image);
 
-              var productImageBlur = $('<img/>').addClass('zacollect-lightbox-product-image-blur')
-                  .attr('src', product.image);
 
-              var blurOverlay = $('<div/>').addClass('zacollect-lightbox-product-image-blue-overlay')
-                  .css({
-                      background: zaCollectOptions.accentColor
-
-                  });
 
               //buyButton
 
@@ -162,7 +155,7 @@
               //STRUCTURE
 
               var productImageDiv = $('<div/>').addClass('zacollect-product-image-holder')
-                  .append(productImageBlur, blurOverlay, productImage);
+                  .append(productImage);
 
               var productTextDiv = $('<div/>').addClass('zacollect-product-text-holder')
                   .append(productTitle, productPrice, productAuthor, productDescription, buyBtn);
@@ -252,7 +245,7 @@
 
           /**
            * Returns the price of the provided product
-           * @param {String} bad
+           * @param {String} badString
            * @return {String}
            */
           function stripHTML(badString) {
@@ -431,7 +424,7 @@
               var winHeight = $(window).height();
               //   var contHeight = (container.height() + 30);
 
-
+              $(container).find('.zacollect-lightbox-product-description').show();
               var containerNewHeight = container.height();
               var prodImage = $(container).find('.zacollect-lightbox-product-image');
               var prodImageHeight = prodImage.height();
@@ -439,24 +432,25 @@
                   var marHeight = Math.floor((winHeight - containerNewHeight) / 2);
                   container.css('margin-top', marHeight);
 
-                  if (!isPortrait) {
-                      var imgContDiff = (containerNewHeight - (prodImageHeight + 52));
-
-                      if (imgContDiff > 0) {
-
-                          prodImage.css('maxWidth', prodImageHeight + imgContDiff + 'px');
-                      }
-                  }
+//                  if (!isPortrait) {
+//                      var imgContDiff = (containerNewHeight - (prodImageHeight + 52));
+//
+//                      if (imgContDiff > 0) {
+//
+//                          prodImage.css('maxWidth', prodImageHeight + imgContDiff + 'px');
+//                      }
+//                  }
 
               } else {
+                  $(container).find('.zacollect-lightbox-product-description').hide();
                   var diff = containerNewHeight - winHeight;
 
                   if (isPortrait) {
 
-                      prodImage.height(prodImageHeight - diff + 'px');
-                      var prodImageHolder = $(container).find('.zacollect-product-image-holder');
-                      var prodImageHolderHeight = prodImageHolder.height();
-                      prodImageHolder.height(prodImageHolderHeight - diff + 'px');
+                   //   prodImage.height(prodImageHeight - diff + 'px');
+                  //    var prodImageHolder = $(container).find('.zacollect-product-image-holder');
+                    //  var prodImageHolderHeight = prodImageHolder.height();
+                   //   prodImageHolder.height(prodImageHolderHeight - diff + 'px');
 
                       if (!secondTime) {
                           checkWinHeightResize(container, isPortrait, true);
@@ -510,7 +504,7 @@
            */
           function checkIfPortrait(h, w) {
 
-              if (h > w) {
+              if (h > w && w < 700) {
                   return true;
               } else {
                   return false;
