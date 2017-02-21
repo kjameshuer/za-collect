@@ -14,8 +14,8 @@ zaCollect uses RSS feeds to display \'collections\' from Zazzle.com (no affiliat
 
 ### Installation
 1. Navigate to the Plugins section of the WordPress dashboard.
-2. Click \'add new\'.
-3. Select \'upload\' and find the \'za-collect.zip\' file that you have downloaded.
+2. Click 'add new'.
+3. Select 'upload' and find the 'za-collect.zip' file that you have downloaded.
 4. Click install. Let the magic happen.
 5. Click activate.
 6. Navigate to Settings->zaCollect and configure options.
@@ -23,4 +23,4 @@ zaCollect uses RSS feeds to display \'collections\' from Zazzle.com (no affiliat
 
 ### Frequently Asked Questions
 Why is the plugin only pulling 6 products from my collection?
-By default zaCollect only pulls 6 products from your collection. To change this add the options \'count\' to you shortcode and add a number between 1 and 100. See the plugin settings for more explanation on shortcode options.
+By default zaCollect only pulls 6 products from your collection. To change this add the options 'count' to you shortcode and add a number between 1 and 100. See the plugin settings for more explanation on shortcode options.
